@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Canteen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+        <div class="blob blob4"></div>
+    </div>
+
+    <nav class="navbar glass">
+        <div class="logo">🥗 Smart Canteen</div>
+        <div class="nav-links">
+            <a href="#" class="active">Home</a>
+            <a href="#menu-section">Menu</a>
+            <a href="#" id="login-btn">Login</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero-section">
+            <div class="hero-text">
+                <h1>Eat Smart,<br><span class="gradient-text">Live Better.</span></h1>
+                <p>Personalized meal recommendations based on your goals, budget, and cravings.</p>
+            </div>
+            
+            <div class="form-container glass">
+                <h2>Find Your Meal</h2>
+                <form id="recommend-form">
+                    <div class="input-group">
+                        <label for="budget">Budget (₹)</label>
+                        <input type="number" id="budget" name="budget" placeholder="e.g. 50" required min="1" step="0.5">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="goal">Fitness Goal</label>
+                        <select id="goal" name="goal">
+                            <option value="loss">Weight Loss</option>
+                            <option value="maintain" selected>Maintain</option>
+                            <option value="gain">Weight Gain</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="timeOfDay">Time of Day</label>
+                        <select id="timeOfDay" name="timeOfDay">
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch" selected>Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snack</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="diet">Dietary Preference</label>
+                        <select id="diet" name="diet">
+                            <option value="any">Any</option>
+                            <option value="veg">Vegetarian</option>
+                            <option value="non-veg">Non-Vegetarian</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="cuisine">Cuisine Preference</label>
+                        <select id="cuisine" name="cuisine">
+                            <option value="any">Any</option>
+                            <option value="bengali">Bengali</option>
+                            <option value="chinese">Chinese</option>
+                            <option value="south_indian">South Indian</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Get Recommendations</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="results-section" class="results-section hidden">
+            <h2 class="section-title">Top Recommendations</h2>
+            <div class="recommendations-grid" id="recommendations-grid">
+                <!-- Cards will be injected here via JS -->
+            </div>
+            
+            <div class="chart-container glass">
+                <h3>Macro Breakdown (Top Pick)</h3>
+                <canvas id="macroChart"></canvas>
+            </div>
+        </section>
+
+        <section id="menu-section" class="menu-section">
+            <h2 class="section-title">Explore The Canteens</h2>
+            
+            <div class="tabs-container">
+                <button class="tab-btn active" data-target="menu-bengali">🍛 Bengali</button>
+                <button class="tab-btn" data-target="menu-chinese">🥡 Chinese</button>
+                <button class="tab-btn" data-target="menu-south-indian">🥥 South Indian</button>
+            </div>
+
+            <div class="tab-content active" id="menu-bengali">
+                <!-- <h2 class="section-title">🍛 Bengali Canteen</h2> -->
+                <div class="menu-grid"></div>
+            </div>
+
+            <div class="tab-content hidden" id="menu-chinese">
+                <!-- <h2 class="section-title">🥡 Chinese Canteen</h2> -->
+                <div class="menu-grid"></div>
+            </div>
+
+            <div class="tab-content hidden" id="menu-south-indian">
+                <!-- <h2 class="section-title">🥥 South Indian Canteen</h2> -->
+                <div class="menu-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
