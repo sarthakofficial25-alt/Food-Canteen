@@ -12,8 +12,13 @@ genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 app = Flask(__name__, static_folder='public', static_url_path='')
 CORS(app)
 
-DB_PATH = 'canteen.db'
-USERS_DB_PATH = 'users.db'
+# Use /tmp for SQLite on Vercel (ephemeral but writeable)
+if os.environ.get('VERCEL'):
+    DB_PATH = '/tmp/canteen.db'
+    USERS_DB_PATH = '/tmp/users.db'
+else:
+    DB_PATH = 'canteen.db'
+    USERS_DB_PATH = 'users.db'
 
 def init_users_db():
     conn = sqlite3.connect(USERS_DB_PATH)
