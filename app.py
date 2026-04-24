@@ -2,11 +2,31 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import sqlite3
 import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+from werkzeug.security import generate_password_hash, check_password_hash
+
+load_dotenv()
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 app = Flask(__name__, static_folder='public', static_url_path='')
 CORS(app)
 
 DB_PATH = 'canteen.db'
+USERS_DB_PATH = 'users.db'
+
+def init_users_db():
+    conn = sqlite3.connect(USERS_DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
@@ -152,6 +172,7 @@ def init_db():
     conn.close()
 
 init_db()
+init_users_db()
 
 def dict_factory(cursor, row):
     d = {}
@@ -224,6 +245,71 @@ def recommend():
 
     rows.sort(key=lambda x: x['score'], reverse=True)
     return jsonify({"data": rows[:3]})
+
+@app.route('/api/ai-insight', methods=['POST', 'OPTIONS'])
+def ai_insight():
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        data = request.json
+        meal_name = data.get('name')
+        calories = data.get('calories')
+        protein = data.get('protein')
+        fat = data.get('fat')
+        goal = data.get('goal', 'maintain')
+        
+        prompt = f"I am a college student and my fitness goal is to {goal} weight. The smart canteen recommended I eat {meal_name} which has {calories} calories, {protein}g of protein, and {fat}g of fat. In exactly 2-3 engaging, conversational sentences, tell me why this is a good choice for my goal and give a quick health tip."
+        
+        # We use gemini-2.5-flash as the fast recommended model
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content(prompt)
+        
+        return jsonify({"insight": response.text.strip()})
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return jsonify({"insight": "Our AI Chef is currently taking a break! Enjoy your delicious meal!"}), 500
+
+@app.route('/api/register', methods=['POST', 'OPTIONS'])
+def register():
+    if request.method == 'OPTIONS':
+        return '', 200
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+    
+    conn = sqlite3.connect(USERS_DB_PATH)
+    c = conn.cursor()
+    try:
+        hash_pw = generate_password_hash(password)
+        c.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, hash_pw))
+        conn.commit()
+        return jsonify({"success": True, "message": "User registered successfully"})
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Username already exists"}), 400
+    finally:
+        conn.close()
+
+@app.route('/api/login', methods=['POST', 'OPTIONS'])
+def login():
+    if request.method == 'OPTIONS':
+        return '', 200
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    conn = sqlite3.connect(USERS_DB_PATH)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = c.fetchone()
+    conn.close()
+    
+    if user and check_password_hash(user['password_hash'], password):
+        return jsonify({"success": True, "username": user['username']})
+    else:
+        return jsonify({"error": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
     app.run(port=3000)

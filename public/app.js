@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 let macroChart = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(targetId).classList.remove('hidden');
         });
     });
+
+    initAuth();
 });
 
 async function fetchMenu() {
@@ -62,12 +64,52 @@ async function fetchRecommendations(budget, goal, timeOfDay, diet, cuisine) {
 
         if (result.data.length > 0) {
             updateChart(result.data[0]); // Chart for top pick
+            fetchAiInsight(result.data[0], goal);
+        } else {
+            document.getElementById('ai-text').innerText = "No items found to provide insight on.";
         }
         
         // Scroll to results
         resultsSection.scrollIntoView({ behavior: 'smooth' });
     } catch (error) {
         console.error('Error fetching recommendations:', error);
+    }
+}
+
+async function fetchAiInsight(topItem, goal) {
+    const aiText = document.getElementById('ai-text');
+    const aiLoading = document.getElementById('ai-loading');
+    
+    // Show loading state
+    aiText.classList.add('hidden');
+    aiLoading.classList.remove('hidden');
+
+    try {
+        const payload = {
+            name: topItem.name,
+            calories: topItem.calories,
+            protein: topItem.protein,
+            fat: topItem.fat,
+            goal: goal
+        };
+
+        const response = await fetch(`${API_BASE}/ai-insight`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        
+        // Hide loading, show text
+        aiLoading.classList.add('hidden');
+        aiText.innerText = result.insight;
+        aiText.classList.remove('hidden');
+    } catch (error) {
+        console.error("AI Insight Error:", error);
+        aiLoading.classList.add('hidden');
+        aiText.innerText = "Our AI Chef is taking a nap. Enjoy your meal!";
+        aiText.classList.remove('hidden');
     }
 }
 
@@ -174,4 +216,118 @@ function updateChart(topItem) {
             }
         }
     });
+}
+
+// Authentication Logic
+let isLoginMode = true;
+
+function initAuth() {
+    const loginBtn = document.getElementById('login-btn');
+    const modal = document.getElementById('auth-modal');
+    const closeBtn = document.getElementById('close-modal');
+    const authForm = document.getElementById('auth-form');
+    const toggleLink = document.getElementById('auth-toggle-link');
+    const toggleText = document.getElementById('auth-toggle-text');
+    const authTitle = document.getElementById('auth-title');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const errorMsg = document.getElementById('auth-error');
+
+    // Check existing session
+    const currentUser = localStorage.getItem('username');
+    if (currentUser) {
+        updateNavbarLoggedIn(currentUser);
+    }
+
+    // Modal toggling
+    loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (localStorage.getItem('username')) {
+            // Logout
+            localStorage.removeItem('username');
+            loginBtn.textContent = 'Login';
+        } else {
+            // Open Modal
+            modal.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
+        }
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Toggle Login/Register
+    toggleLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        isLoginMode = !isLoginMode;
+        errorMsg.classList.add('hidden');
+        
+        if (isLoginMode) {
+            authTitle.textContent = 'Login';
+            submitBtn.textContent = 'Login';
+            toggleText.textContent = "Don't have an account?";
+            toggleLink.textContent = 'Register';
+        } else {
+            authTitle.textContent = 'Create Account';
+            submitBtn.textContent = 'Register';
+            toggleText.textContent = "Already have an account?";
+            toggleLink.textContent = 'Login';
+        }
+    });
+
+    // Form Submission
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const endpoint = isLoginMode ? '/login' : '/register';
+
+        submitBtn.disabled = true;
+        errorMsg.classList.add('hidden');
+
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Authentication failed');
+            }
+
+            if (isLoginMode) {
+                // Success Login
+                localStorage.setItem('username', result.username);
+                updateNavbarLoggedIn(result.username);
+                modal.classList.add('hidden');
+                authForm.reset();
+            } else {
+                // Success Register -> auto switch to login
+                isLoginMode = true;
+                authTitle.textContent = 'Login';
+                submitBtn.textContent = 'Login';
+                toggleText.textContent = "Don't have an account?";
+                toggleLink.textContent = 'Register';
+                errorMsg.textContent = "Registration successful! Please login.";
+                errorMsg.style.color = "var(--success)";
+                errorMsg.classList.remove('hidden');
+                setTimeout(() => {
+                    errorMsg.style.color = "#ff6b6b";
+                }, 3000);
+            }
+        } catch (error) {
+            errorMsg.textContent = error.message;
+            errorMsg.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+function updateNavbarLoggedIn(username) {
+    const loginBtn = document.getElementById('login-btn');
+    loginBtn.innerHTML = `Hi, ${username} <span style="font-size:0.8em; margin-left:5px; color:var(--danger);">(Logout)</span>`;
 }

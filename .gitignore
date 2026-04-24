@@ -3,3 +3,4 @@ canteen.db
 __pycache__/
 .env
 .DS_Store
+users.db
