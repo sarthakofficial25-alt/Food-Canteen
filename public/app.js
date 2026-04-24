@@ -41,11 +41,13 @@ async function fetchMenu() {
         const bengaliItems = result.data.filter(i => i.cuisine === 'bengali');
         const chineseItems = result.data.filter(i => i.cuisine === 'chinese');
         const southIndianItems = result.data.filter(i => i.cuisine === 'south_indian');
+        const beveragesItems = result.data.filter(i => i.cuisine === 'beverages');
         
         // Pass the container that holds the grid
         renderGrid(bengaliItems, document.querySelector('#menu-bengali .menu-grid'));
         renderGrid(chineseItems, document.querySelector('#menu-chinese .menu-grid'));
         renderGrid(southIndianItems, document.querySelector('#menu-south-indian .menu-grid'));
+        renderGrid(beveragesItems, document.querySelector('#menu-beverages .menu-grid'));
     } catch (error) {
         console.error('Error fetching menu:', error);
     }

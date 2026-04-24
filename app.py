@@ -167,7 +167,19 @@ def init_db():
             ('Dal Vada', 15.00, 180, 6, 10, 'moderate', 'veg', 'snack', 'south_indian'),
             ('Bonda', 15.00, 200, 4, 12, 'junk', 'veg', 'snack', 'south_indian'),
             ('Payasam', 25.00, 250, 4, 8, 'moderate', 'veg', 'snack', 'south_indian'),
-            ('Buttermilk', 10.00, 50, 2, 1, 'healthy', 'veg', 'snack', 'south_indian')
+            ('Buttermilk', 10.00, 50, 2, 1, 'healthy', 'veg', 'snack', 'south_indian'),
+
+            # 10 Beverages
+            ('Mineral Water (500ml)', 10.00, 0, 0, 0, 'healthy', 'veg', 'any', 'beverages'),
+            ('Masala Chai', 10.00, 80, 2, 2, 'moderate', 'veg', 'any', 'beverages'),
+            ('Cold Coffee', 40.00, 250, 5, 12, 'junk', 'veg', 'any', 'beverages'),
+            ('Fresh Lime Soda', 25.00, 120, 0, 0, 'healthy', 'veg', 'any', 'beverages'),
+            ('Mango Lassi', 35.00, 280, 4, 6, 'moderate', 'veg', 'any', 'beverages'),
+            ('Iced Tea', 25.00, 100, 0, 0, 'healthy', 'veg', 'any', 'beverages'),
+            ('Oreo Shake', 50.00, 450, 8, 22, 'junk', 'veg', 'any', 'beverages'),
+            ('Green Tea', 20.00, 10, 0, 0, 'healthy', 'veg', 'any', 'beverages'),
+            ('Hot Chocolate', 45.00, 320, 6, 14, 'junk', 'veg', 'any', 'beverages'),
+            ('Sweet Lassi', 30.00, 200, 6, 5, 'moderate', 'veg', 'any', 'beverages')
         ]
         c.executemany('''
             INSERT INTO menu (name, price, calories, protein, fat, category, diet, timeOfDay, cuisine) 
