@@ -2,12 +2,12 @@
 
 Welcome to the **Smart Canteen Recommendation System**, a beautiful, modern, and highly personalized full-stack web application designed for a college campus. 
 
-The system helps students find affordable meals across different cuisines (Bengali, Chinese, and South Indian) based on their budget, dietary preferences, and fitness goals.
+The system helps students find affordable meals across different cuisines (Bengali, Chinese, South Indian, and Beverages) based on their budget, dietary preferences, and fitness goals.
 
 ![Demo](public/screenshot.png) *(You can add a screenshot here later)*
 
 ## ✨ Features
-* **Multi-Cuisine Menus**: A diverse menu featuring 96 authentic dishes broken down into three tabbed sections: 🍛 Bengali, 🥡 Chinese, and 🥥 South Indian.
+* **Multi-Cuisine Menus**: A diverse menu featuring 106 authentic dishes and drinks broken down into four tabbed sections: 🍛 Bengali, 🥡 Chinese, 🥥 South Indian, and 🥤 Beverages.
 * **Smart Recommendation Engine**: A custom algorithm that calculates a "health score" for each dish based on its macros (protein, fat, calories), user fitness goals (Weight Loss, Gain, Maintain), and time of day.
 * **🤖 AI Chef Insight**: Integrates the Google Gemini API to dynamically generate personalized, engaging explanations for why the top recommended meal perfectly suits your specific fitness goal.
 * **🔐 Secure Authentication**: Includes a fully functional login and registration modal with a beautiful glassmorphism design. User data is strictly separated into its own `users.db` database for maximum organization, and passwords are encrypted using `werkzeug.security`.
